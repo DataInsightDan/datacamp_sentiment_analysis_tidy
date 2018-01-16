@@ -5,6 +5,7 @@ Mark Blackmore
 
 -   [Sentiment lexicons](#sentiment-lexicons)
 -   [Implement an inner join](#implement-an-inner-join)
+-   [What are the most common sadness words?](#what-are-the-most-common-sadness-words)
 -   [Session info](#session-info)
 
 ``` r
@@ -72,8 +73,113 @@ get_sentiments("nrc") %>%
 ### Implement an inner join
 
 ``` r
-# load("./data/geocoded_tweets.rda")
+load("./data/geocoded_tweets.rda")
+
+# geocoded_tweets has been pre-defined
+geocoded_tweets
 ```
+
+    ## # A tibble: 520,304 x 3
+    ##      state      word         freq
+    ##      <chr>     <chr>        <dbl>
+    ##  1 alabama         a 16256685.699
+    ##  2 alabama        a-     5491.100
+    ##  3 alabama     a-day     3991.764
+    ##  4 alabama        aa     4739.479
+    ##  5 alabama   aaliyah     8251.955
+    ##  6 alabama      aamu     4305.704
+    ##  7 alabama     aaron    19813.131
+    ##  8 alabama        ab    68032.127
+    ##  9 alabama abandoned     4070.773
+    ## 10 alabama abbeville     7153.342
+    ## # ... with 520,294 more rows
+
+``` r
+# Access bing lexicon: bing
+bing <- get_sentiments("bing")
+
+# Use data frame with text data
+geocoded_tweets %>%
+  # With inner join, implement sentiment analysis using `bing`
+  inner_join(bing)
+```
+
+    ## Joining, by = "word"
+
+    ## # A tibble: 64,303 x 4
+    ##      state           word      freq sentiment
+    ##      <chr>          <chr>     <dbl>     <chr>
+    ##  1 alabama          abuse  7185.962  negative
+    ##  2 alabama         abused  3072.975  negative
+    ##  3 alabama     accomplish  5957.113  positive
+    ##  4 alabama   accomplished 13121.385  positive
+    ##  5 alabama accomplishment  3035.666  positive
+    ##  6 alabama       accurate 28261.680  positive
+    ##  7 alabama           ache  7305.821  negative
+    ##  8 alabama         aching  5079.525  negative
+    ##  9 alabama         addict  5441.260  negative
+    ## 10 alabama       addicted 40389.455  negative
+    ## # ... with 64,293 more rows
+
+### What are the most common sadness words?
+
+``` r
+# Access nrc lexicon: bing
+nrc <- get_sentiments("nrc")
+
+# With inner join, implement sentiment analysis using `nrc`
+tweets_nrc <- geocoded_tweets %>% 
+  inner_join(nrc)
+```
+
+    ## Joining, by = "word"
+
+``` r
+tweets_nrc
+```
+
+    ## # A tibble: 210,027 x 4
+    ##      state      word      freq sentiment
+    ##      <chr>     <chr>     <dbl>     <chr>
+    ##  1 alabama abandoned  4070.773     anger
+    ##  2 alabama abandoned  4070.773      fear
+    ##  3 alabama abandoned  4070.773  negative
+    ##  4 alabama abandoned  4070.773   sadness
+    ##  5 alabama   ability 12406.263  positive
+    ##  6 alabama  abortion  3267.394   disgust
+    ##  7 alabama  abortion  3267.394      fear
+    ##  8 alabama  abortion  3267.394  negative
+    ##  9 alabama  abortion  3267.394   sadness
+    ## 10 alabama  absolute 22956.284  positive
+    ## # ... with 210,017 more rows
+
+``` r
+# Most common sadness words
+tweets_nrc %>%
+  # Filter to only choose the words associated with sadness
+  filter(sentiment == "sadness") %>%
+  # Group by word
+  group_by(word) %>%
+  # Use the summarize verb to find the mean frequency
+  summarise(freq = mean(freq)) %>%
+  # Arrange to sort in order of descending frequency
+  arrange(desc(freq))
+```
+
+    ## # A tibble: 585 x 2
+    ##       word      freq
+    ##      <chr>     <dbl>
+    ##  1    hate 1253839.9
+    ##  2     bad  984942.9
+    ##  3   bitch  787774.0
+    ##  4    hell  486259.0
+    ##  5   crazy  447047.2
+    ##  6 feeling  407561.6
+    ##  7   leave  397805.5
+    ##  8     mad  393559.5
+    ##  9   music  373608.3
+    ## 10    sick  362022.6
+    ## # ... with 575 more rows
 
 ------------------------------------------------------------------------
 
