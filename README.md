@@ -5,9 +5,9 @@ Text datasets are diverse and ubiquitous, and sentiment analysis provides an app
 
 ### [Tweets across the United States](tweets.md)  
 
-### Shakespeare gets Sentimental  
+### [Shakespeare gets Sentimental](shakespeare.md)  
 
-### Analyzing TV News
+### [Analyzing TV News](tv_news.md)
 
 ### Singing a Happy Song (or Sad?!)
 
