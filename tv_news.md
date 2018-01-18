@@ -10,7 +10,8 @@ Mark Blackmore
 -   [Which words contribute to the sentiment scores?](#which-words-contribute-to-the-sentiment-scores)
 -   [Word choice and TV station](#word-choice-and-tv-station)
 -   [Visualizing sentiment over time](#visualizing-sentiment-over-time)
--   [](#section)
+-   [Word changes over time](#word-changes-over-time)
+-   [Session info](#session-info)
 
 ``` r
 suppressWarnings(
@@ -274,4 +275,72 @@ sentiment_by_time %>%
 
 ![](tv_news_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
 
-###
+### Word changes over time
+
+``` r
+tidy_tv %>%
+  # Define a new column that rounds each date to the nearest 1 month
+  mutate(date = floor_date(show_date, unit = "1 month")) %>%
+  filter(word %in% c("threat", "hoax", "denier",
+                     "real", "warming", "hurricane")) %>%
+  # Count by date and word
+  count(date, word) %>%
+  ungroup() %>%
+  # Set up your plot with aes()
+  ggplot(aes(date, n, color = word)) +
+  # Make facets by word
+  facet_wrap(~word) +
+  geom_line(size = 1.5, show.legend = FALSE) +
+  expand_limits(y = 0)
+```
+
+![](tv_news_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-9-1.png)
+
+------------------------------------------------------------------------
+
+Session info
+------------
+
+``` r
+sessionInfo()
+```
+
+    ## R version 3.4.2 (2017-09-28)
+    ## Platform: x86_64-w64-mingw32/x64 (64-bit)
+    ## Running under: Windows 10 x64 (build 16299)
+    ## 
+    ## Matrix products: default
+    ## 
+    ## locale:
+    ## [1] LC_COLLATE=English_United States.1252 
+    ## [2] LC_CTYPE=English_United States.1252   
+    ## [3] LC_MONETARY=English_United States.1252
+    ## [4] LC_NUMERIC=C                          
+    ## [5] LC_TIME=English_United States.1252    
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ##  [1] lubridate_1.6.0 bindrcpp_0.2    tidytext_0.1.4  dplyr_0.7.4    
+    ##  [5] purrr_0.2.3     readr_1.1.1     tidyr_0.7.1     tibble_1.3.4   
+    ##  [9] ggplot2_2.2.1   tidyverse_1.1.1
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] Rcpp_0.12.13      cellranger_1.1.0  compiler_3.4.2   
+    ##  [4] plyr_1.8.4        bindr_0.1         tokenizers_0.1.4 
+    ##  [7] forcats_0.2.0     tools_3.4.2       digest_0.6.12    
+    ## [10] jsonlite_1.5      evaluate_0.10.1   nlme_3.1-131     
+    ## [13] gtable_0.2.0      lattice_0.20-35   pkgconfig_2.0.1  
+    ## [16] rlang_0.1.2       Matrix_1.2-11     psych_1.7.8      
+    ## [19] yaml_2.1.14       parallel_3.4.2    haven_1.1.0      
+    ## [22] janeaustenr_0.1.5 xml2_1.1.1        httr_1.3.1       
+    ## [25] stringr_1.2.0     knitr_1.17        hms_0.3          
+    ## [28] rprojroot_1.2     grid_3.4.2        glue_1.1.1       
+    ## [31] R6_2.2.2          readxl_1.0.0      foreign_0.8-69   
+    ## [34] rmarkdown_1.6     modelr_0.1.1      reshape2_1.4.2   
+    ## [37] magrittr_1.5      SnowballC_0.5.1   backports_1.1.1  
+    ## [40] scales_0.5.0      htmltools_0.3.6   rvest_0.3.2      
+    ## [43] assertthat_0.2.0  mnormt_1.5-5      colorspace_1.3-2 
+    ## [46] labeling_0.3      stringi_1.1.5     lazyeval_0.2.0   
+    ## [49] munsell_0.4.3     broom_0.4.2

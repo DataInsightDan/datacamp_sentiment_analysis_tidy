@@ -9,6 +9,6 @@ Text datasets are diverse and ubiquitous, and sentiment analysis provides an app
 
 ### [Analyzing TV News](tv_news.md)
 
-### Singing a Happy Song (or Sad?!)
+### [Singing a Happy Song (or Sad?!)](song_lyrics.md)
 
 

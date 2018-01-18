@@ -139,10 +139,50 @@ sentiment_by_time %>%
   expand_limits(y = 0)
 
 
-#' ### 
+#' ### Word changes over time  
+
+tidy_tv %>%
+  # Define a new column that rounds each date to the nearest 1 month
+  mutate(date = floor_date(show_date, unit = "1 month")) %>%
+  filter(word %in% c("threat", "hoax", "denier",
+                     "real", "warming", "hurricane")) %>%
+  # Count by date and word
+  count(date, word) %>%
+  ungroup() %>%
+  # Set up your plot with aes()
+  ggplot(aes(date, n, color = word)) +
+  # Make facets by word
+  facet_wrap(~word) +
+  geom_line(size = 1.5, show.legend = FALSE) +
+  expand_limits(y = 0)
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#' -------------
+#'
+#' ## Session info
+#+ show-sessionInfo
+sessionInfo()
