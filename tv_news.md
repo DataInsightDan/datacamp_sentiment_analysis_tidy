@@ -1,12 +1,16 @@
 Analyzing TV News
 ================
 Mark Blackmore
-2018-01-17
+2018-01-18
 
 -   [Tidying TV news](#tidying-tv-news)
 -   [Counting totals](#counting-totals)
 -   [Sentiment analysis of tv news](#sentiment-analysis-of-tv-news)
 -   [Which station uses the most positive or negative words?](#which-station-uses-the-most-positive-or-negative-words)
+-   [Which words contribute to the sentiment scores?](#which-words-contribute-to-the-sentiment-scores)
+-   [Word choice and TV station](#word-choice-and-tv-station)
+-   [Visualizing sentiment over time](#visualizing-sentiment-over-time)
+-   [](#section)
 
 ``` r
 suppressWarnings(
@@ -175,3 +179,99 @@ tv_sentiment %>%
     ## 1 FOX News  positive         10876   514 0.04726002
     ## 2      CNN  positive         10713   522 0.04872585
     ## 3    MSNBC  positive         19487   953 0.04890440
+
+### Which words contribute to the sentiment scores?
+
+``` r
+tv_sentiment %>%
+  # Count by word and sentiment
+  count(word, sentiment) %>%
+  # Group by sentiment
+  group_by(sentiment) %>%
+  # Take the top 10 words for each sentiment
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  # Set up the plot with aes()
+  ggplot(aes(word, n, fill = sentiment)) +
+    geom_col(show.legend = FALSE) +
+    facet_wrap(~ sentiment, scales = "free") +
+    coord_flip()
+```
+
+    ## Selecting by n
+
+![](tv_news_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+
+### Word choice and TV station
+
+``` r
+tv_sentiment %>%
+  # Filter for only negative words
+  filter(sentiment == "negative") %>%
+  # Count by word and station
+  count(word, station) %>%
+  # Group by station
+  group_by(station) %>%
+  # Take the top 10 words for each station
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(paste(word, station, sep = "__"), n)) %>%
+  # Set up the plot with aes()
+  ggplot(aes(word, n, fill = station)) +
+    geom_col(show.legend = FALSE) +
+    scale_x_discrete(labels = function(x) gsub("__.+$", "", x)) +
+    facet_wrap(~ station, nrow = 2, scales = "free") +
+    coord_flip()
+```
+
+    ## Selecting by n
+
+![](tv_news_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+
+### Visualizing sentiment over time
+
+``` r
+# Load the lubridate package
+library(lubridate)
+```
+
+    ## 
+    ## Attaching package: 'lubridate'
+
+    ## The following object is masked from 'package:base':
+    ## 
+    ##     date
+
+``` r
+sentiment_by_time <- tidy_tv %>%
+  # Define a new column using floor_date()
+  mutate(date = floor_date(show_date, unit = "6 months")) %>%
+  # Group by date
+  group_by(date) %>%
+  mutate(total_words = n()) %>%
+  ungroup() %>%
+  # Implement sentiment analysis using the NRC lexicon
+  inner_join(get_sentiments("nrc"))
+```
+
+    ## Joining, by = "word"
+
+``` r
+sentiment_by_time %>%
+  # Filter for positive and negative words
+  filter(sentiment %in% c("positive", "negative")) %>%
+  # Count by date, sentiment, and total_words
+  count(date, sentiment, total_words) %>%
+  ungroup() %>%
+  mutate(percent = n / total_words) %>%
+  # Set up the plot with aes()
+  ggplot(aes(date, percent, fill = sentiment)) +
+  geom_line(size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, lty = 2) +
+  expand_limits(y = 0)
+```
+
+![](tv_news_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
+
+###
