@@ -94,6 +94,89 @@ lyric_sentiment %>%
 
 #' ### More on Billboard rank and sentiment scores  
 
+lyric_sentiment %>%
+  # Filter for only negative words
+  filter(sentiment == "negative") %>%
+  # Count by song, Billboard rank, and the total number of words
+  count(song,rank, total_words)%>%
+  ungroup() %>%
+  # Mutate to make a percent column
+  mutate(percent = n / total_words,
+         rank = 10 * floor(rank / 10)) %>%
+  # Use ggplot to set up a plot with rank and percent
+  ggplot(aes(as.factor(rank), percent)) +
+  # Make a boxplot
+  geom_boxplot()
+
+#' ### Sentiment scores by year
+
+# How is negative sentiment changing over time?
+lyric_sentiment %>%
+  # Filter for only negative words
+  filter(sentiment == "negative") %>%
+  # Count by song, year, and the total number of words
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  mutate(percent = n / total_words,
+         year = 10 * floor(year / 10)) %>%
+  # Use ggplot to set up a plot with year and percent
+  ggplot(aes(as.factor(year), percent)) +
+  geom_boxplot()
+
+# How is positive sentiment changing over time?
+lyric_sentiment %>%
+  filter(sentiment == "positive") %>%
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  mutate(percent = n / total_words,
+         year = 10 * floor(year / 10)) %>%
+  ggplot(aes(as.factor(year), percent)) +
+  geom_boxplot()
+
+
+#' ### Modeling negative sentiment  
+
+negative_by_year <- lyric_sentiment %>%
+  # Filter for negative words
+  filter(sentiment == "negative") %>%
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  # Define a new column: percent
+  mutate(percent = n / total_words)
+
+# Specify the model with percent as the response and year as the predictor
+model_negative <- lm(percent ~ year, data = negative_by_year)
+
+# Use summary to see the results of the model fitting
+summary(model_negative)
+
+#' ### Modeling positive sentiment  
+
+positive_by_year <- lyric_sentiment %>%
+  filter(sentiment == "positive") %>%
+  # Count by song, year, and total number of words
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  # Define a new column: percent
+  mutate(percent = n / total_words)
+
+# Fit a linear model with percent as the response and year as the predictor
+model_positive <- lm(percent ~ year, data = positive_by_year)
+
+# Use summary to see the results of the model fitting
+summary(model_positive)
+
+#' -------------
+#'
+#' ## Session info
+#+ show-sessionInfo
+sessionInfo()
+
+
+
+
+
+
 
 
 

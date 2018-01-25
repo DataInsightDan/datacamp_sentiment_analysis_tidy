@@ -1,7 +1,7 @@
 Singing a Happy Song (or Sad?!)
 ================
 Mark Blackmore
-2018-01-18
+2018-01-24
 
 -   [Tidying song lyrics](#tidying-song-lyrics)
 -   [Calculating total words per song](#calculating-total-words-per-song)
@@ -9,6 +9,10 @@ Mark Blackmore
 -   [The most positive and negative songs](#the-most-positive-and-negative-songs)
 -   [Sentiment and Billboard rank](#sentiment-and-billboard-rank)
 -   [More on Billboard rank and sentiment scores](#more-on-billboard-rank-and-sentiment-scores)
+-   [Sentiment scores by year](#sentiment-scores-by-year)
+-   [Modeling negative sentiment](#modeling-negative-sentiment)
+-   [Modeling positive sentiment](#modeling-positive-sentiment)
+-   [Session info](#session-info)
 
 ``` r
 suppressWarnings(
@@ -192,3 +196,175 @@ lyric_sentiment %>%
 ![](song_lyrics_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
 
 ### More on Billboard rank and sentiment scores
+
+``` r
+lyric_sentiment %>%
+  # Filter for only negative words
+  filter(sentiment == "negative") %>%
+  # Count by song, Billboard rank, and the total number of words
+  count(song,rank, total_words)%>%
+  ungroup() %>%
+  # Mutate to make a percent column
+  mutate(percent = n / total_words,
+         rank = 10 * floor(rank / 10)) %>%
+  # Use ggplot to set up a plot with rank and percent
+  ggplot(aes(as.factor(rank), percent)) +
+  # Make a boxplot
+  geom_boxplot()
+```
+
+![](song_lyrics_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+
+### Sentiment scores by year
+
+``` r
+# How is negative sentiment changing over time?
+lyric_sentiment %>%
+  # Filter for only negative words
+  filter(sentiment == "negative") %>%
+  # Count by song, year, and the total number of words
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  mutate(percent = n / total_words,
+         year = 10 * floor(year / 10)) %>%
+  # Use ggplot to set up a plot with year and percent
+  ggplot(aes(as.factor(year), percent)) +
+  geom_boxplot()
+```
+
+![](song_lyrics_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
+
+``` r
+# How is positive sentiment changing over time?
+lyric_sentiment %>%
+  filter(sentiment == "positive") %>%
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  mutate(percent = n / total_words,
+         year = 10 * floor(year / 10)) %>%
+  ggplot(aes(as.factor(year), percent)) +
+  geom_boxplot()
+```
+
+![](song_lyrics_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-2.png)
+
+### Modeling negative sentiment
+
+``` r
+negative_by_year <- lyric_sentiment %>%
+  # Filter for negative words
+  filter(sentiment == "negative") %>%
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  # Define a new column: percent
+  mutate(percent = n / total_words)
+
+# Specify the model with percent as the response and year as the predictor
+model_negative <- lm(percent ~ year, data = negative_by_year)
+
+# Use summary to see the results of the model fitting
+summary(model_negative)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = percent ~ year, data = negative_by_year)
+    ## 
+    ## Residuals:
+    ##       Min        1Q    Median        3Q       Max 
+    ## -0.030288 -0.017205 -0.005778  0.010505  0.294194 
+    ## 
+    ## Coefficients:
+    ##               Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)  3.809e-02  5.022e-02   0.758    0.448
+    ## year        -3.720e-06  2.523e-05  -0.147    0.883
+    ## 
+    ## Residual standard error: 0.02513 on 4624 degrees of freedom
+    ## Multiple R-squared:  4.702e-06,  Adjusted R-squared:  -0.0002116 
+    ## F-statistic: 0.02174 on 1 and 4624 DF,  p-value: 0.8828
+
+### Modeling positive sentiment
+
+``` r
+positive_by_year <- lyric_sentiment %>%
+  filter(sentiment == "positive") %>%
+  # Count by song, year, and total number of words
+  count(song, year, total_words) %>%
+  ungroup() %>%
+  # Define a new column: percent
+  mutate(percent = n / total_words)
+
+# Fit a linear model with percent as the response and year as the predictor
+model_positive <- lm(percent ~ year, data = positive_by_year)
+
+# Use summary to see the results of the model fitting
+summary(model_positive)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = percent ~ year, data = positive_by_year)
+    ## 
+    ## Residuals:
+    ##       Min        1Q    Median        3Q       Max 
+    ## -0.058050 -0.024032 -0.007756  0.014774  0.269726 
+    ## 
+    ## Coefficients:
+    ##               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  1.117e+00  6.859e-02   16.29   <2e-16 ***
+    ## year        -5.373e-04  3.446e-05  -15.59   <2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.03495 on 4770 degrees of freedom
+    ## Multiple R-squared:  0.0485, Adjusted R-squared:  0.0483 
+    ## F-statistic: 243.1 on 1 and 4770 DF,  p-value: < 2.2e-16
+
+------------------------------------------------------------------------
+
+Session info
+------------
+
+``` r
+sessionInfo()
+```
+
+    ## R version 3.4.2 (2017-09-28)
+    ## Platform: x86_64-w64-mingw32/x64 (64-bit)
+    ## Running under: Windows 10 x64 (build 16299)
+    ## 
+    ## Matrix products: default
+    ## 
+    ## locale:
+    ## [1] LC_COLLATE=English_United States.1252 
+    ## [2] LC_CTYPE=English_United States.1252   
+    ## [3] LC_MONETARY=English_United States.1252
+    ## [4] LC_NUMERIC=C                          
+    ## [5] LC_TIME=English_United States.1252    
+    ## 
+    ## attached base packages:
+    ## [1] stats     graphics  grDevices utils     datasets  methods   base     
+    ## 
+    ## other attached packages:
+    ## [1] bindrcpp_0.2    tidytext_0.1.4  dplyr_0.7.4     purrr_0.2.3    
+    ## [5] readr_1.1.1     tidyr_0.7.1     tibble_1.3.4    ggplot2_2.2.1  
+    ## [9] tidyverse_1.1.1
+    ## 
+    ## loaded via a namespace (and not attached):
+    ##  [1] Rcpp_0.12.13      cellranger_1.1.0  compiler_3.4.2   
+    ##  [4] plyr_1.8.4        bindr_0.1         tokenizers_0.1.4 
+    ##  [7] forcats_0.2.0     tools_3.4.2       digest_0.6.12    
+    ## [10] lubridate_1.6.0   jsonlite_1.5      evaluate_0.10.1  
+    ## [13] nlme_3.1-131      gtable_0.2.0      lattice_0.20-35  
+    ## [16] pkgconfig_2.0.1   rlang_0.1.2       Matrix_1.2-11    
+    ## [19] psych_1.7.8       yaml_2.1.14       parallel_3.4.2   
+    ## [22] haven_1.1.0       janeaustenr_0.1.5 xml2_1.1.1       
+    ## [25] httr_1.3.1        stringr_1.2.0     knitr_1.17       
+    ## [28] hms_0.3           rprojroot_1.2     grid_3.4.2       
+    ## [31] glue_1.1.1        R6_2.2.2          readxl_1.0.0     
+    ## [34] foreign_0.8-69    rmarkdown_1.6     modelr_0.1.1     
+    ## [37] reshape2_1.4.2    magrittr_1.5      SnowballC_0.5.1  
+    ## [40] backports_1.1.1   scales_0.5.0      htmltools_0.3.6  
+    ## [43] rvest_0.3.2       assertthat_0.2.0  mnormt_1.5-5     
+    ## [46] colorspace_1.3-2  labeling_0.3      stringi_1.1.5    
+    ## [49] lazyeval_0.2.0    munsell_0.4.3     broom_0.4.2

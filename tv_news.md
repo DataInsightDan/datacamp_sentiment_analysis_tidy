@@ -1,7 +1,7 @@
 Analyzing TV News
 ================
 Mark Blackmore
-2018-01-18
+2018-01-24
 
 -   [Tidying TV news](#tidying-tv-news)
 -   [Counting totals](#counting-totals)
