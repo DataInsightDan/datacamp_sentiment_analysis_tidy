@@ -1,7 +1,7 @@
 Shakespeare gets Sentimental
 ================
 Mark Blackmore
-2018-01-16
+2018-01-26
 
 -   [To be, or not to be](#to-be-or-not-to-be)
 -   [Unnesting from text to word](#unnesting-from-text-to-word)

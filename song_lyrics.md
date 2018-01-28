@@ -1,7 +1,7 @@
 Singing a Happy Song (or Sad?!)
 ================
 Mark Blackmore
-2018-01-24
+2018-01-27
 
 -   [Tidying song lyrics](#tidying-song-lyrics)
 -   [Calculating total words per song](#calculating-total-words-per-song)

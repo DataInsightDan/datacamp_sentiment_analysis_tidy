@@ -1,6 +1,6 @@
 #' ---
-#' title: Analyzing TV News
-#' author: "Mark Blackmore"
+#' title: Analyzing TV News  
+#' author: "Mark Blackmore"  
 #' date: "`r format(Sys.Date())`"
 #' output: 
 #'   github_document:

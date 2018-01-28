@@ -1,7 +1,7 @@
 Tweets across the United States
 ================
 Mark Blackmore
-2018-01-16
+2018-01-26
 
 -   [Sentiment lexicons](#sentiment-lexicons)
 -   [Implement an inner join](#implement-an-inner-join)

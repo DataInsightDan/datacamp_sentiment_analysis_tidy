@@ -1,7 +1,7 @@
 #' ---
 #' title: Singing a Happy Song (or Sad?!)
-#' author: "Mark Blackmore"
-#' date: "`r format(Sys.Date())`"
+#' author: "Mark Blackmore"  
+#' date: "`r format(Sys.Date())`"  
 #' output: 
 #'   github_document:
 #'     toc: true
